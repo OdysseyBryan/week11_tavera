@@ -1,69 +1,122 @@
-# CodeIgniter 4 Application Starter
+# Bank of Odysseus - Anti-Hacker Lab
 
-## What is CodeIgniter?
+## Overview
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+This is a **CodeIgniter 4** bank transfer simulation demonstrating **CSRF and XSS protection** as part of Week 11's cybersecurity lab. The application simulates a secure banking interface with real security features to help students understand web vulnerabilities and defenses.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## Features
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+- **Secure Bank Transfer Form** - Send money to recipients with dynamic currency conversion
+- **CSRF Protection** - Global CSRF filter blocks unauthorized form submissions
+- **XSS Protection** - All user input is escaped to prevent script injection
+- **Interactive Calculator** - Real-time exchange rates and fee calculation
+- **Bonus XSS Challenge** - Interactive demonstration of safe vs unsafe output
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+## Tech Stack
 
-## Installation & updates
+- **Framework:** CodeIgniter 4.7.3
+- **Database:** MySQL (bank_of_odysseus)
+- **Styling:** Custom CSS with Poppins font
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+## Installation
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+1. Install dependencies:
+```bash
+composer install
+```
 
-## Setup
+2. Create the database:
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS bank_of_odysseus;"
+```
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+3. Run migrations:
+```bash
+php spark migrate
+```
 
-## Important Change with index.php
+4. Start the server:
+```bash
+php spark serve
+```
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+## How to Use This Lab
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+### 1. Start the Server
+```bash
+php spark serve
+```
 
-**Please** read the user guide for a better explanation of how CI4 works!
+### 2. Access the Main Page
+- **URL:** http://localhost:8080/transfer
+- Fill in the transfer form with recipient name, account number, amount, and currency
+- Click "Send Transfer" to submit
 
-## Repository Management
+### 3. Test CSRF Protection
+- **Normal submission:** Works fine - form includes CSRF token
+- **CSRF attack simulation:** Open `http://localhost:8080/attacker.html`
+- **Result:** Returns **403 Forbidden** (proving CSRF protection works!)
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### 4. Test XSS Protection
+- Enter in any field: `<script>alert('XSS')</script>`
+- **Result:** Displays as plain text, NOT executed (thanks to `esc()`)
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### 5. Bonus Challenge - XSS Title Hacker
+- Scroll to the "XSS Title Hacker Challenge" section
+- Enter `<script>document.title='HACKED'</script>` in both test boxes
+- **Left side (unsafe):** Without `esc()` - changes your browser tab title
+- **Right side (safe):** With `esc()` - displays the script as plain text
 
-## Server Requirements
+## Project Structure
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+```
+week11_tavera/
+├── app/
+│   ├── Config/
+│   │   ├── Filters.php       # CSRF global filter enabled
+│   │   ├── Routes.php     # Application routes
+│   │   └── Database.php  # MySQL connection
+│   ├── Controllers/
+│   │   └── Transfer.php  # Transfer controller
+│   ├── Models/
+│   │   └── TransferModel.php  # Transfer model
+│   ├── Views/
+│   │   └── transfer/
+│   │       └── index.php  # Main transfer view
+│   └── Database/
+│       └── Migrations/
+│           └── 2026-05-29-142450_CreateTransfersTable.php
+├── public/
+│   └── attacker.html     # CSRF attack simulation page
+└── README.md
+```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## Security Implemented
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+### CSRF Protection
+- Enabled globally in `app/Config/Filters.php`:
+```php
+public array $globals = [
+    'before' => [
+        'csrf',
+    ],
+    ...
+];
+```
+- Form includes `<?= csrf_field() ?>` helper
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+### XSS Protection
+- All user output escaped with `esc($data, 'html')`
+- Prevents script execution from user input
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+## Screenshots
+
+The application features:
+- Modern banking interface with navy (#0A1929) and green (#2E7D32) theme
+- Dynamic transfer calculator with exchange rates
+- Recent transfers list with XSS protection badges
+- Interactive XSS challenge demonstration
+
+## License
+
+MIT License - Created as educational material for Week 11 Cybersecurity Lab.
