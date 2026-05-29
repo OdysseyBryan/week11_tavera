@@ -2,5 +2,8 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/** @var RouteCollection $routes */
+$routes = service('routes');
+
 $routes->get('/', 'Home::index');
+$routes->get('/transfer', 'Transfer::index');
+$routes->post('/transfer/submit', 'Transfer::submit');
