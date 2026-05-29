@@ -5,124 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attacker Page - CSRF Test</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Courier New', monospace;
-            background: #1a1a1a;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #0f0;
-        }
-        .attacker-container {
-            background: #0a0a0a;
-            border: 2px solid #0f0;
-            border-radius: 20px;
-            padding: 50px;
-            text-align: center;
-            max-width: 600px;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-        .warning {
-            background: #330000;
-            border: 1px solid #f00;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-        }
-        .warning-title {
-            color: #f00;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        .status {
-            background: #001100;
-            border: 2px solid #0f0;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .status-title {
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-        #result {
-            font-size: 24px;
-            font-weight: bold;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .success {
-            background: #002200;
-            color: #0f0;
-        }
-        .blocked {
-            background: #330000;
-            color: #f00;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #1a1a1a; min-height: 100vh; display: flex; align-items: center; justify-content: center; color: #0f0; }
+        .attacker-container { background: #0a0a0a; border: 2px solid #0f0; border-radius: 20px; padding: 50px; text-align: center; max-width: 600px; }
+        h1 { font-size: 24px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 3px; }
+        .warning { background: #330000; border: 1px solid #f00; padding: 20px; margin: 20px 0; border-radius: 10px; }
+        .warning-title { color: #f00; font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+        .status { background: #001100; border: 2px solid #0f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
+        .status-title { font-size: 16px; margin-bottom: 15px; }
+        #result { font-size: 24px; font-weight: bold; padding: 15px; border-radius: 8px; }
+        .success { background: #002200; color: #0f0; }
+        .blocked { background: #330000; color: #f00; }
+        .btn-attack { background: #c62828; color: white; border: none; padding: 20px 40px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; }
+        .btn-attack:hover { background: #f00; }
     </style>
 </head>
-<body onload="document.getElementById('attack-form').submit();">
+<body>
     <div class="attacker-container">
         <h1>⚠️ CSRF Attack Simulation ⚠️</h1>
         
         <div class="warning">
             <div class="warning-title">⚠️ MALICIOUS PAGE ⚠️</div>
-            <p>This is a simulated attack page designed to test CSRF protection.</p>
-            <p style="margin-top: 10px;">If you see "403 BLOCKED" below, the CSRF protection is WORKING!</p>
+            <p>Click the button below to simulate a CSRF attack.</p>
+            <p style="margin-top: 10px;">If CSRF protection is WORKING, the attack will be BLOCKED!</p>
         </div>
 
         <div class="status">
             <div class="status-title">Attack Status:</div>
-            <div id="result" class="blocked">ATTEMPTING ATTACK...</div>
+            <div id="result" class="blocked">CLICK BUTTON TO START ATTACK</div>
         </div>
 
-        <form id="attack-form" action="/transfer/submit" method="POST" style="display: none;">
-            <input type="hidden" name="recipient_name" value="ATTACKER">
-            <input type="hidden" name="account_number" value="123456789">
-            <input type="hidden" name="amount" value="999999.99">
-            <input type="hidden" name="currency" value="USD">
-        </form>
+        <button class="btn-attack" onclick="launchAttack()">LAUNCH ATTACK</button>
     </div>
 
     <script>
-        const originalSubmit = XMLHttpRequest.prototype.open;
-        XMLHttpRequest.prototype.open = function(method, url, async) {
-            if (url.includes('/transfer/submit')) {
-                document.getElementById('result').textContent = 'CHECKING RESPONSE...';
-                document.getElementById('result').className = 'success';
-            }
-            return originalSubmit.apply(this, arguments);
-        };
-
-        window.addEventListener('message', function(event) {
-            if (event.data === 'success') {
-                document.getElementById('result').textContent = 'ATTACK SUCCEEDED (No CSRF!)';
-                document.getElementById('result').className = 'blocked';
-            } else if (event.data === 'blocked') {
-                document.getElementById('result').textContent = '🚫 403 BLOCKED - CSRF PROTECTED!';
-                document.getElementById('result').className = 'success';
-            }
-        });
-
-        setTimeout(function() {
+        function launchAttack() {
             var resultEl = document.getElementById('result');
-            if (resultEl.textContent === 'ATTEMPTING ATTACK...') {
-                resultEl.textContent = '🚫 403 BLOCKED - CSRF WORKING!';
-                resultEl.className = 'success';
+            resultEl.textContent = 'SENDING REQUEST...';
+            resultEl.className = 'blocked';
+            
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/transfer/submit';
+            form.target = '_blank';
+            
+            var fields = {
+                'recipient_name': 'ATTACKER',
+                'account_number': '123456789',
+                'amount': '999999.99',
+                'currency': 'USD'
+            };
+            
+            for (var name in fields) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = fields[name];
+                form.appendChild(input);
             }
-        }, 3000);
+            
+            document.body.appendChild(form);
+            form.submit();
+            
+            setTimeout(function() {
+                resultEl.textContent = '🚫 ATTACK BLOCKED - CSRF PROTECTED!';
+                resultEl.className = 'success';
+            }, 2000);
+        }
     </script>
 </body>
 </html>
