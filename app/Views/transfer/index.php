@@ -512,38 +512,62 @@
     </div>
 
     <script>
-        const exchangeRates = {
-            USD: { rate: 1.00, symbol: '$', name: 'USD' },
-            EUR: { rate: 1.20, symbol: '€', name: 'EUR' },
-            GBP: { rate: 1.35, symbol: '£', name: 'GBP' }
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const exchangeRates = {
+                USD: { rate: 1.00, symbol: '$', name: 'USD' },
+                EUR: { rate: 1.20, symbol: '€', name: 'EUR' },
+                GBP: { rate: 1.35, symbol: '£', name: 'GBP' }
+            };
 
-        const feePercent = 1;
+            const feePercent = 1;
 
-        function updateCalculator() {
-            const amount = parseFloat(document.getElementById('amount').value) || 0;
-            const currency = document.getElementById('currency').value;
-            const rate = exchangeRates[currency].rate;
-            const symbol = exchangeRates[currency].symbol;
-            const fee = amount * (feePercent / 100);
-            const total = amount + fee;
-            const convertedAmount = total * rate;
+            function updateCalculator() {
+                const amountInput = document.getElementById('amount');
+                const currencySelect = document.getElementById('currency');
+                
+                if (!amountInput || !currencySelect) {
+                    console.error('Calculator elements not found');
+                    return;
+                }
+                
+                const amount = parseFloat(amountInput.value) || 0;
+                const currency = currencySelect.value;
+                const rate = exchangeRates[currency].rate;
+                const symbol = exchangeRates[currency].symbol;
+                const fee = amount * (feePercent / 100);
+                const total = amount + fee;
+                const convertedAmount = total * rate;
 
-            document.getElementById('calc-amount').textContent = symbol + amount.toFixed(2) + ' ' + currency;
-            document.getElementById('calc-rate').textContent = '1 USD = ' + rate.toFixed(2) + ' ' + currency;
-            document.getElementById('calc-fee').textContent = symbol + fee.toFixed(2);
-            document.getElementById('calc-total').textContent = symbol + convertedAmount.toFixed(2) + ' ' + currency;
-        }
+                document.getElementById('calc-amount').textContent = symbol + amount.toFixed(2) + ' ' + currency;
+                document.getElementById('calc-rate').textContent = '1 USD = ' + rate.toFixed(2) + ' ' + currency;
+                document.getElementById('calc-fee').textContent = symbol + fee.toFixed(2);
+                document.getElementById('calc-total').textContent = symbol + convertedAmount.toFixed(2) + ' ' + currency;
+            }
 
-        document.getElementById('amount').addEventListener('input', updateCalculator);
-        document.getElementById('currency').addEventListener('change', updateCalculator);
+            const amountInput = document.getElementById('amount');
+            const currencySelect = document.getElementById('currency');
+            
+            if (amountInput) {
+                amountInput.addEventListener('input', updateCalculator);
+                amountInput.addEventListener('keyup', updateCalculator);
+            }
+            if (currencySelect) {
+                currencySelect.addEventListener('change', updateCalculator);
+            }
+
+            window.updateCalculator = updateCalculator;
+            
+            updateCalculator();
+        });
 
         function resetForm() {
             document.getElementById('recipient_name').value = '';
             document.getElementById('account_number').value = '';
             document.getElementById('amount').value = '';
             document.getElementById('currency').value = 'USD';
-            updateCalculator();
+            if (window.updateCalculator) {
+                window.updateCalculator();
+            }
         }
 
         function escapeHtml(text) {
@@ -563,8 +587,6 @@
             document.getElementById('xss-input-safe').value = escaped;
             alert('Script was escaped to:\n' + escaped + '\n\nThe script cannot execute because special characters are converted to HTML entities.');
         }
-
-        updateCalculator();
     </script>
 </body>
 </html>
