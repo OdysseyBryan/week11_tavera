@@ -486,27 +486,31 @@
         </div>
 
         <div class="bonus-section">
-            <h2 class="bonus-title">XSS Title Hacker Challenge</h2>
+            <h2 class="bonus-title">XSS Vulnerability Demonstration</h2>
+            
+            <p style="text-align:center;margin-bottom:20px;color:#666;">Enter <strong><script>document.title='HACKED'</script></strong> in both inputs to see the difference!</p>
             
             <div class="xss-demo">
                 <div class="xss-box xss-unsafe">
-                    <span class="xss-label">❌ UNSAFE - Without esc()</span>
-                    <input type="text" id="xss-input-unsafe" class="xss-test-input" placeholder='Enter: <script>document.title="HACKED"</script>'>
-                    <button class="xss-btn" onclick="testUnsafeXSS()">Test Unsafe</button>
+                    <span class="xss-label">❌ UNSAFE - Raw Input Display</span>
+                    <input type="text" id="xss-input-unsafe" class="xss-test-input" placeholder="Enter JavaScript code...">
+                    <button class="xss-btn" onclick="testUnsafeXSS()">Render</button>
+                    <div id="unsafe-output" style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.9);border-radius:8px;color:#333;min-height:50px;"></div>
                 </div>
                 
                 <div class="xss-box xss-safe">
-                    <span class="xss-label">✅ SAFE - With esc()</span>
-                    <input type="text" id="xss-input-safe" class="xss-test-input" placeholder='Enter: <script>document.title="HACKED"</script>'>
-                    <button class="xss-btn" onclick="testSafeXSS()">Test Safe (Escaped)</button>
+                    <span class="xss-label">✅ SAFE - With esc() Applied</span>
+                    <input type="text" id="xss-input-safe" class="xss-test-input" placeholder="Enter JavaScript code...">
+                    <button class="xss-btn" onclick="testSafeXSS()">Render</button>
+                    <div id="safe-output" style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.9);border-radius:8px;color:#333;min-height:50px;"></div>
                 </div>
             </div>
 
             <div class="explanation">
-                <h4>Understanding XSS Protection</h4>
-                <p><strong>Without esc():</strong> The browser interprets malicious scripts as actual code, allowing attackers to steal cookies, redirect users, or modify page content. In this demo, the script changes your browser tab title.</p>
-                <p style="margin-top: 10px;"><strong>With esc() or htmlspecialchars():</strong> Special characters are converted to HTML entities, so <code><script></code> becomes <code>&lt;script&gt;</code> and displays as plain text instead of executing.</p>
-                <p style="margin-top: 10px;"><strong>Bank of Odysseus uses esc() on ALL user inputs</strong> - your data is always protected!</p>
+                <h4>Understanding XSS Attacks</h4>
+                <p><strong>UNSAFE (left):</strong> User input is displayed as-is without escaping. If someone enters <code><script>alert('xss')</script></code>, the browser executes it!</p>
+                <p style="margin-top: 10px;"><strong>SAFE (right):</strong> Input is passed through <code>esc()</code> which converts HTML special characters to entities. <code><script></code> becomes <code>&lt;script&gt;</code>.</p>
+                <p style="margin-top: 10px;"><strong>Bank of Odysseus ALWAYS uses esc()</strong> on every user-supplied field - this prevents XSS attacks!</p>
             </div>
         </div>
     </div>
@@ -555,14 +559,13 @@
 
         function testUnsafeXSS() {
             var input = jQuery('#xss-input-unsafe').val();
-            document.title = input;
+            jQuery('#unsafe-output').html(input);
         }
 
         function testSafeXSS() {
             var input = jQuery('#xss-input-safe').val();
             var escaped = input.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"').replace(/'/g, '&#039;');
-            jQuery('#xss-input-safe').val(escaped);
-            alert('Script was escaped to:\\n' + escaped + '\\n\\nThe script cannot execute because special characters are converted to HTML entities.');
+            jQuery('#safe-output').html(escaped);
         }
     </script>
 </body>
