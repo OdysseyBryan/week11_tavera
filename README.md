@@ -43,15 +43,6 @@ php spark serve
 ### 4. Valid Transfer Display
 All transfers in the list use `esc()` - XSS scripts are neutralized.
 
-## Screenshot Checklist
-
-- [ ] Folder structure (app/Controllers, app/Models, app/Views, public/attacker.html)
-- [ ] Main transfer page with calculator
-- [ ] CSRF 403 error on attacker page
-- [ ] XSS bonus challenge showing both outputs
-- [ ] Successful transfer in list (with badge)
-- [ ] GitHub repo: https://github.com/OdysseyBryan/week11_tavera
-
 ## Tech Stack
 
 - CodeIgniter 4
